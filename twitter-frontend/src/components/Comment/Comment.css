@@ -1,0 +1,6 @@
+.post__commentBox > input{
+    flex: 1;
+    font-size: 17px;
+    outline: none;
+    width: 500px;
+}
