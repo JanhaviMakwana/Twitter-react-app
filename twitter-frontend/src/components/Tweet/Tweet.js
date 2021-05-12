@@ -1,5 +1,5 @@
-import React, {  useState } from 'react';
-import {  Avatar } from '@material-ui/core';
+import React, { useState } from 'react';
+import { Avatar } from '@material-ui/core';
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import ChatBubbleOutlineIcon from "@material-ui/icons/ChatBubbleOutline";
 import RepeatIcon from "@material-ui/icons/Repeat";
@@ -8,6 +8,10 @@ import { FacebookShareButton, FacebookIcon, WhatsappShareButton, TwitterIcon, Tw
 import { withAuth } from '../../twitter-context';
 import Comment from '../Comment/Comment';
 import './Tweet.css';
+
+const shareButtonProps = {
+    url: 'http://localhost:3000/home'
+}
 
 const Tweet = (props) => {
 
@@ -47,16 +51,16 @@ const Tweet = (props) => {
                         <RepeatIcon fontSize="small" onClick={() => props.onIconClick('Retweet')} />
                         <FavoriteBorderIcon color={props.liked ? "secondary" : "inherit"} fontSize="small" onClick={() => props.onIconClick('Like')} />
                         <div>
-                            <TwitterShareButton>
+                            <TwitterShareButton {...shareButtonProps}>
                                 <TwitterIcon size={30} round={true} />
                             </TwitterShareButton>
-                            <FacebookShareButton >
+                            <FacebookShareButton {...shareButtonProps}>
                                 <FacebookIcon size={30} round={true} />
                             </FacebookShareButton>
-                            <WhatsappShareButton>
+                            <WhatsappShareButton {...shareButtonProps}>
                                 <WhatsappIcon size={30} round={true} />
                             </WhatsappShareButton>
-                            <EmailShareButton>
+                            <EmailShareButton {...shareButtonProps}>
                                 <EmailIcon size={30} round={true} />
                             </EmailShareButton>
                         </div>
