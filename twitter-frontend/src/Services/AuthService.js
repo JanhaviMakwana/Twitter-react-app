@@ -1,23 +1,40 @@
 import axios from '../axios';
 
-class AuthService {
-    login(data) {
-        return axios.post("/login", data);
-    }
+const AuthService = {
+    login: (data) => {
+        return axios.post("/login", data)
+            .then(({ data }) => {
+                setHeaderAndStorage(data);
+                return data;
+            })
+            .catch(err => {
+                console.log("Auth service err", err);
+                throw err
+            });
 
-    signup(data) {
-        return axios.post("/signup", data);
-    }
+    },
 
-    editProfile(data) {
+    signup: (data) => {
+        return axios.post("/signup", data)
+            .then(({ data }) => {
+                setHeaderAndStorage(data);
+                return data;
+            })
+            .catch(err => {
+                console.log("Auth service err", err);
+                throw err
+            });
+    },
+
+    editProfile: (data) => {
         return axios.post('/edit-profile', data);
     }
-
-    getuser(userId) {
-        console.log(userId);
-        return axios.get(`/${userId}`);
-    }
-
 };
 
-export default new AuthService();
+const setHeaderAndStorage = ({ user, token }) => {
+    axios.defaults.headers['Authorization'] = `Bearer ${token}`;
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('token', token);
+}
+
+export default AuthService;

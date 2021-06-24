@@ -28,8 +28,14 @@ function PublicRoute({ component: Component, isAuthenticated, ...rest }) {
 };
 
 class App extends React.Component {
+
+  componentDidMount() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    this.props.setUserId(user.id);
+  }
+
   render() {
-    console.log(this.props.isAuthenticated);
+   
     return (
       <div className="App">
         <Switch>

@@ -7,12 +7,10 @@ import './TweetBox.css';
 const TweetBox = (props) => {
     const [tweet, setTweet] = useState('');
     const [file, setFile] = useState();
-    console.log(props.userId);
     const tweetChangeHandler = (event) => {
         setTweet(event.target.value);
     }
     const imageSelectHandler = (event) => {
-        console.log("click");
         const filename = event.target.value.replace(/^.*[\\\/]/, '');
         setFile(filename);
     }

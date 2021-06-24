@@ -12,13 +12,10 @@ const Profile = (props) => {
     const [name, setName] = useState('');
 
     useEffect(() => {
-        async function fetchProfileData() {
-            const res = await AuthService.getuser(1);
-            setUserName(res.data.username);
-            setName(res.data.name);
-            setImage(res.data.profileImage);
-        }
-        fetchProfileData();
+            const user = JSON.parse(localStorage.getItem('user'));
+            setUserName(user.username);
+            setName(user.name);
+            setImage(user.profileImage);
     }, [])
 
     const nameHandler = (event) => {

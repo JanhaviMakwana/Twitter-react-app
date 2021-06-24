@@ -14,7 +14,6 @@ const shareButtonProps = {
 }
 
 const Tweet = (props) => {
-
     const [showComment, setShowComment] = useState(false);
 
     const addCommentHandler = () => {

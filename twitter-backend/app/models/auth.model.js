@@ -15,8 +15,7 @@ module.exports = (sequelize, Sequelize) => {
             defaultValue: ''
         },
         profileImage: {
-            type: Sequelize.STRING,
-            defaultValue: ''
+            type: Sequelize.STRING
         }
     });
     return User;

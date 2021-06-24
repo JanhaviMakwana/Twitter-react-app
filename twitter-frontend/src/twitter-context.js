@@ -7,7 +7,15 @@ const AuthProvider = (props) => {
     const [userId, setUserId] = useState(null);
     const [likes, setLikes] = useState();
     return (
-        <TwitterContext.Provider value={{ isAuthenticated, setIsAuthenticated, userId, setUserId, likes, setLikes }}>
+        <TwitterContext.Provider
+            value={{
+                isAuthenticated,
+                setIsAuthenticated,
+                userId,
+                setUserId,
+                likes,
+                setLikes
+            }}>
             {props.children}
         </TwitterContext.Provider>
     );

@@ -20,7 +20,7 @@ const styles = makeStyles((theme) => ({
         fontWeight: 'bold'
     },
     form: {
-        width: '90%', // Fix IE 11 issue.
+        width: '90%', 
     }
 }));
 
@@ -42,9 +42,7 @@ const Auth = (props) => {
         if (isSignup) {
             AuthService.signup(data)
                 .then(res => {
-                    console.log(res);
                     props.setIsAuthenticated(true);
-                    props.setUserId(res.data.id);
                     props.history.push('/home');
                 })
                 .catch(err => {
@@ -55,9 +53,7 @@ const Auth = (props) => {
             AuthService.login(data)
                 .then(res => {
                     props.setIsAuthenticated(true);
-                    props.setUserId(res.data.id);
                     props.history.push('/home');
-                    console.log(res);
                 })
                 .catch(err => {
                     console.log(err);

@@ -1,6 +1,9 @@
 const db = require('../models');
 const User = db.user;
 const { validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const config = require('../config/app');
 const Op = db.Sequelize.Op;
 
 exports.login = async (req, res) => {
@@ -11,7 +14,11 @@ exports.login = async (req, res) => {
         });
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        return res.send(user);
+        if (!(bcrypt.compare(password, user.password))) return res.status(401).json({ message: 'Incorrect password !' });
+
+        const userWithToken = generateToken(user.get({ raw: true }));
+
+        return res.send(userWithToken);
     } catch (e) {
         return res.status(500).json({ message: e.message });
     }
@@ -24,8 +31,11 @@ exports.signup = async (req, res) => {
     };
 
     try {
-        const user = await User.create(req.body)
-        return res.send(user);
+        const user = await User.create(req.body);
+
+        const userWithToken = generateToken(user.get({ raw: true }));
+
+        return res.send(userWithToken);
     } catch (e) {
         return res.status(500).json({ message: e.message });
     }
@@ -67,3 +77,29 @@ exports.editProfile = async (req, res) => {
         })
     }
 };
+
+exports.verifyJWT = (req, res, next) => {
+    const token = req.headers['authorization'].split('Bearer ')[1];
+    if (!token) {
+        return res.status(400).json({message: 'Invalid user!'});
+    }else{
+        jwt.verify(token, config.appKey, (err, res) => {
+            if(err){
+                return res.status(400).json({
+                    message: 'Invalid user!'
+                })
+            }
+            next();
+        })
+    };
+};
+
+const generateToken = (user) => {
+    delete user.password;
+
+    const token = jwt.sign(user, config.appKey, { expiresIn: '86400' });
+
+    return { ...{ user }, ...{ token } }
+};
+
+
