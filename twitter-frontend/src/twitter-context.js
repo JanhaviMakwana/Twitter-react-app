@@ -1,20 +1,17 @@
-import React, { useState, createContext } from 'react';
+import React, { createContext, useReducer } from 'react';
+import reducer, { initialState } from './store/reducer/auth';
 
 const TwitterContext = createContext();
 
 const AuthProvider = (props) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userId, setUserId] = useState(null);
-    const [likes, setLikes] = useState();
+
+    const [state, dispatch] = useReducer(reducer, initialState);
+
     return (
         <TwitterContext.Provider
             value={{
-                isAuthenticated,
-                setIsAuthenticated,
-                userId,
-                setUserId,
-                likes,
-                setLikes
+                state,
+                dispatch
             }}>
             {props.children}
         </TwitterContext.Provider>

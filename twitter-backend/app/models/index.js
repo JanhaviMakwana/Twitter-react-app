@@ -23,47 +23,21 @@ db.tweet = require('./tweets.model')(sequelize, Sequelize);
 db.comment = require('./comments.model')(sequelize, Sequelize);
 db.user = require('./auth.model')(sequelize, Sequelize);
 db.like = require('./likes.controller')(sequelize, Sequelize);
-db.user.hasMany(db.tweet, {
-    as: "tweets"
-});
-db.user.hasMany(db.like, {
-    foreignKey: "userId",
-    targetKey: "id"
-});
-db.user.hasMany(db.comment, {
-    foreignKey: "userId",
-    targetKey: "id"
-});
 
-db.tweet.belongsTo(db.user, {
-    foreignKey: 'userId',
-    as: "user"
-});
 
-db.tweet.hasMany(db.comment, {
-    foreignKey: "tweetId",
-    targetKey: "id"
-});
-db.tweet.hasMany(db.like, {
-    foreignKey: "tweetId",
-    targetKey: "id"
-});
+db.user.hasMany(db.tweet);
+db.tweet.belongsTo(db.user, { constraints: true, onDelete: 'CASCADE' });
 
-db.comment.belongsTo(db.tweet, {
-    foreignKey: "tweetId",
-    as: "tweet"
-});
-db.comment.belongsTo(db.user, {
-    /* foreignKey: "userId", */
-    as: "user"
-});
-db.like.belongsTo(db.tweet, {
-    foreignKey: 'tweetId',
-    as: 'tweet'
-});
-db.like.belongsTo(db.user, {
-    foreignKey: 'userId',
-    as: 'user'
-});
+db.tweet.hasMany(db.like);
+db.tweet.hasMany(db.comment);
+
+db.like.belongsTo(db.tweet, { constraints: true, onDelete: 'CASCADE' });
+db.comment.belongsTo(db.tweet, { constraints: true, onDelete: 'CASCADE' });
+
+db.user.hasMany(db.like);
+db.user.hasMany(db.comment);
+
+db.like.belongsTo(db.user, { constraints: true, onDelete: 'CASCADE' });
+db.comment.belongsTo(db.user, { constraints: true, onDelete: 'CASCADE' });
 
 module.exports = db;

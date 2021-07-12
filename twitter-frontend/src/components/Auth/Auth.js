@@ -19,7 +19,7 @@ const useStyles = makeStyles({
 const Auth = (props) => {
 
     const classes = useStyles();
-    const src = require('../../assets/twitter2.jpg').default;
+    const src = require('../../assets/twitter1.jpg').default;
     return (
         <Box className={classes.auth} display="flex" flexDirection="row">
             <CardActionArea>

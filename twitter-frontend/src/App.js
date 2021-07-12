@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from 'react-router';
 import { withAuth } from './twitter-context';
 import Home from './components/Home/Home';
 import Auth from './components/Auth/Auth';
+import {SET_AUTH_DATA} from './store/actionTypes';
 import './App.css';
 
 function PrivateRoutes({ component: Component, isAuthenticated, ...rest }) {
@@ -30,8 +31,11 @@ function PublicRoute({ component: Component, isAuthenticated, ...rest }) {
 class App extends React.Component {
 
   componentDidMount() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    this.props.setUserId(user.id);
+    const user = localStorage.getItem('user');
+    user && this.props.dispatch({type: SET_AUTH_DATA, user: user});
+    window.onunload = () => {
+      localStorage.clear();
+    };
   }
 
   render() {
@@ -39,9 +43,9 @@ class App extends React.Component {
     return (
       <div className="App">
         <Switch>
-          <PrivateRoutes path="/home" isAuthenticated={this.props.isAuthenticated} component={Home} />
-          <PublicRoute path="/login" isAuthenticated={this.props.isAuthenticated} component={Auth} />
-          <PublicRoute path="/" isAuthenticated={this.props.isAuthenticated} component={Auth} />
+          <PrivateRoutes path="/home" isAuthenticated={this.props.state.user ? true : false} component={Home} />
+          <PublicRoute path="/login" isAuthenticated={this.props.state.user ? true : false} component={Auth} />
+          <PublicRoute path="/" isAuthenticated={this.props.state.user ? true : false} component={Auth} />
         </Switch>
       </div>
     );

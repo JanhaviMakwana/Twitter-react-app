@@ -3,19 +3,32 @@ import CreateIcon from '@material-ui/icons/Create';
 import './Profile.css';
 import { Button } from '@material-ui/core';
 import AuthService from '../../../Services/AuthService';
-import { withAuth } from '../../../twitter-context'
+import { withAuth } from '../../../twitter-context';
+import FormData from 'form-data';
 
 const Profile = (props) => {
-
+    console.log(props.state.user);
+    const [user, setUser] = useState([]);
     const [username, setUserName] = useState('');
-    const [image, setImage] = useState('');
+    const [image, setImage] = useState(null);
     const [name, setName] = useState('');
 
     useEffect(() => {
-            const user = JSON.parse(localStorage.getItem('user'));
-            setUserName(user.username);
-            setName(user.name);
-            setImage(user.profileImage);
+        const userId = props.state.user.id;
+        const fetchUserProfile = async () => {
+            const user = await AuthService.getUserProfile(userId)
+                .then(res => {
+                    setUser(res);
+                    setUserName(res.username);
+                    setImage(res.profileImageUrl);
+                    setName(res.name);
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        }
+        fetchUserProfile();
+        // eslint-disable-next-line
     }, [])
 
     const nameHandler = (event) => {
@@ -27,35 +40,44 @@ const Profile = (props) => {
     }
 
     const imageHandler = (event) => {
-        const filename = event.target.value.replace(/^.*[\\\/]/, '');
-        setImage(filename);
+        setImage(event.target.files[0]);
     }
 
     const formSubmitHandler = async (event) => {
         event.preventDefault();
         const data = {
-            userId: props.userId,
-            imgurl: image,
             username: username,
             name: name
         }
-        AuthService.editProfile(data)
-            .then(res => { props.click('Home'); })
+        AuthService.editProfile(props.state.user.id, data)
+            .then(res => {
+                if (image != null && typeof image === 'object') {
+                    const imageData = new FormData();
+                    imageData.append('image', image);
+                    AuthService.updateProfileImage(props.state.user.id, imageData)
+                        .then(res => {
+                            props.click('Home');
+                        }).catch(err => {
+                            console.log(err);
+                        });
+                } else {
+                    props.click('Home');
+                }
+
+            })
             .catch(err => {
+                console.log(err.message);
                 alert("Failed")
             });
-
     }
-
-    const src = image ? require(`../../../assets/users/${image}`).default : null;
 
     return (
         <div className="profile">
             <div className="profileBox">
                 <div className="profileBox__header">
                     <img
-                        src={src}
-                        alt={image}
+                        src={user.profileImageUrl !== null ? user.profileImageUrl : null}
+                        alt="user"
                         style={{ height: '70px', width: '70px', borderRadius: '50px', margin: '5px auto' }}
                     />
                     <div className="profileBox__imageSelect">

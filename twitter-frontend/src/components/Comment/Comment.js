@@ -14,12 +14,12 @@ const Comment = (props) => {
     const commentPostHandler = async (event) => {
         event.preventDefault();
         props.onClick();
-        const data = {
-            userId: props.userId,
-            tweetId: props.tweetId,
-            comment: comment
-        }
-        TweetService.postComment(data).then(res => {}).catch(err => {});
+        const userId = props.state.user.id;
+        TweetService.postComment({ desc: comment }, userId, props.tweetId)
+            .then(res => { 
+                //console.log(res);
+            })
+            .catch(err => { });
     }
 
     return (

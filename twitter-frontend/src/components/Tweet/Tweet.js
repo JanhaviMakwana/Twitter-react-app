@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { Avatar } from '@material-ui/core';
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import ChatBubbleOutlineIcon from "@material-ui/icons/ChatBubbleOutline";
@@ -15,19 +15,20 @@ const shareButtonProps = {
 
 const Tweet = (props) => {
     const [showComment, setShowComment] = useState(false);
-
+    const { tweet } = props;
     const addCommentHandler = () => {
         setShowComment(!showComment);
     }
-    const name = props.tweet.user.name ? props.tweet.user.name : "User";
-    const username = props.tweet.user.username ? props.tweet.user.username : "Anonymous";
-    const imageSrc = props.tweet.imageUrl ? require(`../../assets/tweets/${props.tweet.imageUrl}`).default : null;
-    const userSrc = props.tweet.user.profileImage !== null ? require(`../../assets/tweets/${props.tweet.user.profileImage}`).default : null;
+
+
+    const name = tweet.user.name ? tweet.user.name : "User";
+    const username = tweet.user.username ? tweet.user.username : "Anonymous";
+
     return (
         <div>
             <div className="post">
                 <div className="post__avatar">
-                    <Avatar src={userSrc} />
+                    <Avatar src={tweet.user.profileImageUrl ? tweet.user.profileImageUrl : null} />
                 </div>
                 <div className="post__body">
                     <div className="post__header">
@@ -40,11 +41,11 @@ const Tweet = (props) => {
                             </h3>
                         </div>
                         <div className="post__headerDescription">
-                            <p>{props.tweet.description}</p>
+                            <p>{tweet.description}</p>
                         </div>
 
                     </div>
-                    {imageSrc !== null && <img className="post__image" src={imageSrc} alt="" />}
+                    {tweet.imageUrl && <img className="post__image" src={tweet.imageUrl} alt={tweet.description} />}
                     <div className="post__footer">
                         <ChatBubbleOutlineIcon fontSize="small" onClick={addCommentHandler} />
                         <RepeatIcon fontSize="small" onClick={() => props.onIconClick('Retweet')} />

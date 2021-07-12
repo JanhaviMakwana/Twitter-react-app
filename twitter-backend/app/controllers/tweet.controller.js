@@ -4,29 +4,66 @@ const Tweet = db.tweet;
 const Like = db.like;
 const Op = db.Sequelize.Op;
 
-exports.createTweet = async (req, res) => {
+
+exports.postTweet = async (req, res) => {
     const { description } = req.body;
     if (description) {
         try {
-            const postTweet = await Tweet.create(req.body)
-            return res.send(postTweet);
+            const postedTweet = await req.user.createTweet({ description });
+            return res.send(postedTweet);
         } catch (e) {
             return res.status(500).json({ message: e.message });
         }
     } else {
-        res.status(400).send({
+        return res.status(400).send({
             message: "Content can not be empty!"
         });
     }
-}
+};
+
+exports.getTweets = async (req, res) => {
+    try {
+        const fetchedTweets = await Tweet.findAll({ include: ['likes', 'user'] });
+        return res.send(fetchedTweets);
+
+    } catch (e) {
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+
+exports.uploadImage = async (req, res) => {
+    const { tweetId } = req.params;
+    if (req.file) {
+        const tweet = await Tweet.update({ imageUrl: req.file.filename }, { where: { id: tweetId } });
+        if (tweet) {
+            return res.send(tweet)
+        } else {
+            return res.status(404).json({ message: 'Tweet not found' });
+        }
+    }
+    return res.status(500).json('No image uploaded')
+};
+
+exports.reTweet = async (req, res) => {
+    const data = req.body;
+    try {
+        const retweet = await req.user.createTweet(data);
+        console.log(retweet);
+        return res.send(retweet);
+
+    } catch (e) {
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 exports.findTweetById = async (req, res) => {
 
-    const { id } = req.params;
+    const { tweetId } = req.params;
 
-    if (id) {
+    if (tweetId) {
         try {
-            const tweet = await Tweet.findByPk(id);
+            const tweet = await Tweet.findByPk(tweetId);
             return res.send(tweet);
         } catch (e) {
             return res.status(500).json({ message: e.message });
@@ -36,15 +73,4 @@ exports.findTweetById = async (req, res) => {
             message: "Content can not be empty!"
         });
     }
-}
-
-exports.getAllTweets = async (req, res) => {
-
-    const condition = req.params.userId ? req.params.userId : null;
-    try {
-        const tweets = await Tweet.findAll({ where: null, include: [{ model: db.user, as: 'user' }, { model: db.like, as: 'likes' }] });
-        return res.send(tweets);
-    } catch (err) {
-        console.log("Error while finding tweets", err);
-    };
 }

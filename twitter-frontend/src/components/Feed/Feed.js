@@ -3,6 +3,7 @@ import './Feed.css';
 import Tweet from '../Tweet/Tweet';
 import TweetBox from '../TweetBox/TweetBox';
 import TweetService from '../../Services/TweetService';
+import { SET_ISUPDATING } from '../../store/actionTypes';
 import { withAuth } from '../../twitter-context';
 
 const Feed = (props) => {
@@ -10,43 +11,53 @@ const Feed = (props) => {
 
     useEffect(() => {
         async function fetchTweets() {
-            const res = await TweetService.getTweets();
-            setTweets(res.data);
+            const res = await TweetService.getAllTweets();
+            setTweets(res);
         }
         fetchTweets();
     }, [setTweets])
 
     const getTweets = async () => {
-        const res = await TweetService.getTweets();
-        setTweets(res.data);
+        const res = await TweetService.getAllTweets();
+        setTweets(res);
+        props.dispatch({ type: SET_ISUPDATING });
     }
 
     const iconClickHandler = async (type, id) => {
         if (type === 'Like') {
-            const data = {
-                userId: props.userId,
-                tweetId: id
-            }
-            TweetService.getLike(data).then(res => { }).catch(err => { });
+            TweetService.likeTweet(props.state.user.id, id)
+                .then(res => {
+                    getTweets();
+                })
+                .catch(err => {
+                    console.log(err);
+                })
         } else if (type === 'Retweet') {
             if (window.confirm('Share it?')) {
                 const res = await TweetService.getTweetById(id);
+                const filename = res.imageUrl.split('/')[3]
+                const userId = props.state.user.id;
                 const data = {
-                    userId: props.userId,
-                    description: res.data.description,
-                    imageUrl: res.data.imageUrl === null ? '' : res.data.imageUrl
+                    description: res.description,
+                    imageUrl: res.imageUrl === null ? '' : filename
                 }
-                TweetService.tweet(data).then(res => { }).catch(err => { });
+                TweetService.retweet(data, userId)
+                    .then(res => {
+                        console.log(res);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    })
             }
 
         } else {
 
         }
-        getTweets();
+
     }
 
     const arr = tweets.map((tweet, index) => {
-        const like = tweet.likes.filter(ob => ob.userId === props.userId);
+        const like = tweet.likes.filter(ob => ob.userId === props.state.user.id);
         return <Tweet key={index} tweet={tweet} onIconClick={(type) => iconClickHandler(type, tweet.id)} liked={like.length !== 0 ? true : false} />
     })
     return (

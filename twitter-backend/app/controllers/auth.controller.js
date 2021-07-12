@@ -41,31 +41,15 @@ exports.signup = async (req, res) => {
     }
 }
 
-exports.findUserById = async (req, res) => {
-
-    const { userId } = req.params;
-    if (userId) {
-        try {
-            const user = await User.findByPk(userId);
-            return res.send(user);
-        } catch (e) {
-            return res.status(500).json({ message: e.message });
-        }
-    } else {
-        res.status(400).send({
-            message: 'Invalid userId!'
-        })
-    }
-}
-
 exports.editProfile = async (req, res) => {
 
-    const { userId, username, imgurl, name } = req.body;
+    const { userId } = req.params;
+    const { username, name } = req.body;
 
     const user = await User.findByPk(userId);
     if (user) {
         try {
-            const updatedUser = await User.update({ username: username, profileImage: imgurl, name: name }, { where: { id: userId } });
+            const updatedUser = await user.update({ username: username, name: name });
             return res.send(updatedUser);
         } catch (e) {
             return res.status(500).json({ message: e.message });
@@ -78,20 +62,25 @@ exports.editProfile = async (req, res) => {
     }
 };
 
-exports.verifyJWT = (req, res, next) => {
-    const token = req.headers['authorization'].split('Bearer ')[1];
-    if (!token) {
-        return res.status(400).json({message: 'Invalid user!'});
-    }else{
-        jwt.verify(token, config.appKey, (err, res) => {
-            if(err){
-                return res.status(400).json({
-                    message: 'Invalid user!'
-                })
-            }
-            next();
-        })
-    };
+exports.uploadProfileImage = async (req, res) => {
+    const { userId } = req.params;
+    if (req.file) {
+        const updatedUser = await User.update({ profileImageUrl: req.file.filename }, { where: { id: userId } });
+        if (updatedUser) {
+            return res.send({message: 'successfully updated user profile...'});
+        } else {
+            return res.status(404).json({ message: 'Tweet not found' });
+        }
+    }
+    return res.status(500).json('No image uploaded')
+};
+
+exports.getUserProfile = async (req, res) => {
+    try {
+        res.send(req.user);
+    } catch (e) {
+        return res.status(500).json({ message: e.message });
+    }
 };
 
 const generateToken = (user) => {

@@ -1,33 +1,55 @@
 import axios from '../axios';
 
 const AuthService = {
-    login: (data) => {
-        return axios.post("/login", data)
+    login: (authData) => {
+        return axios.post("/login", authData)
             .then(({ data }) => {
                 setHeaderAndStorage(data);
-                return data;
+                return data.user;
             })
             .catch(err => {
-                console.log("Auth service err", err);
-                throw err
+                throw new Error(err.response.data.message)
             });
 
     },
 
-    signup: (data) => {
-        return axios.post("/signup", data)
+    signup: (authData) => {
+        return axios.post("/signup", authData)
             .then(({ data }) => {
                 setHeaderAndStorage(data);
-                return data;
+                return data.user;
             })
             .catch(err => {
-                console.log("Auth service err", err);
-                throw err
+                throw new Error(err.response.data.message)
             });
     },
 
-    editProfile: (data) => {
-        return axios.post('/edit-profile', data);
+    editProfile: (userId, profileData) => {
+        return axios.post(`/edit-profile/${userId}`, profileData)
+            .then(({ data }) => {
+                return data;
+            })
+            .catch(err => {
+                throw new Error(err.response.data.message)
+            });
+    },
+    updateProfileImage: (userId, profileImageData) => {
+        return axios.post(`/upload-profile-image/${userId}`, profileImageData)
+            .then(({ data }) => {
+                return data;
+            })
+            .catch(err => {
+                throw new Error(err.response.data.message)
+            });
+    },
+    getUserProfile: (userId) => {
+        return axios.get(`/get-user/${userId}`)
+            .then(({ data }) => {
+                return data;
+            })
+            .catch(err => {
+                throw new Error(err.response.data.message)
+            });
     }
 };
 

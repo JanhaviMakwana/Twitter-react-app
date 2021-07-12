@@ -2,33 +2,44 @@ import React, { useState } from 'react';
 import { Button, Avatar } from '@material-ui/core';
 import { withAuth } from '../../twitter-context';
 import TweetService from '../../Services/TweetService';
+import FormData from 'form-data';
 import './TweetBox.css';
 
 const TweetBox = (props) => {
     const [tweet, setTweet] = useState('');
-    const [file, setFile] = useState();
+    const [image, setImage] = useState(null);
     const tweetChangeHandler = (event) => {
         setTweet(event.target.value);
     }
     const imageSelectHandler = (event) => {
-        const filename = event.target.value.replace(/^.*[\\\/]/, '');
-        setFile(filename);
+        setImage(event.target.files[0]);
     }
 
     const tweetSubmitHandler = async (event) => {
         event.preventDefault();
         const data = {
-            userId: props.userId,
-            description: tweet,
-            imageUrl: file
+            description: tweet
         }
-        TweetService.tweet(data).then(res => {
-            props.getTweets();
+        TweetService.postTweet(data, props.state.user.id).then(res => {
+            if (image != null) {
+                const imageData = new FormData();
+                imageData.append('image', image);
+                TweetService.uploadTweetImage(imageData, res.id)
+                    .then(imageRes => {
+                        props.getTweets();
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    })
+            } else {
+                props.getTweets();
+            }
+
         }).catch(e => {
 
         })
         setTweet('');
-        setFile();
+        setImage();
 
     };
 
@@ -58,7 +69,7 @@ const TweetBox = (props) => {
                         className="tweetBox__tweetButton"
                     >
                         Tweet
-                </Button>
+                    </Button>
                 </div>
             </form>
         </div>
